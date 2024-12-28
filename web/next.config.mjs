@@ -1,27 +1,42 @@
-import { recmaPlugins } from "./src/mdx/recma.mjs";
-import { rehypePlugins } from "./src/mdx/rehype.mjs";
-import { remarkPlugins } from "./src/mdx/remark.mjs";
-import withSearch from "./src/mdx/search.mjs";
-import nextMDX from "@next/mdx";
+import bundleAnalyzer from '@next/bundle-analyzer'
+import remarkGfm from 'remark-gfm'
+import createMDX from '@next/mdx'
 
-const withMDX = nextMDX({
+const withMDX = createMDX({
   options: {
-    remarkPlugins,
-    rehypePlugins,
-    recmaPlugins,
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [],
   },
-});
+})
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  pageExtensions: ["js", "jsx", "ts", "tsx", "mdx"],
-  eslint: {
-    ignoreDuringBuilds: true,
+  experimental: {
+    mdxRs: true,
   },
-};
+  pageExtensions: ['js', 'jsx', 'mdx', 'ts', 'tsx'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Don't resolve 'fs' module on the client to prevent this error
+      config.resolve.fallback = {
+        fs: false,
+        path: false,
+      }
+    }
+    return config
+  },
+}
 
-export default withSearch(withMDX(nextConfig));
-
-// export default million.next(
-//   withSearch(withMDX(nextConfig)), { auto: { rsc: true } }
-// );
+export default withMDX(withBundleAnalyzer(nextConfig))

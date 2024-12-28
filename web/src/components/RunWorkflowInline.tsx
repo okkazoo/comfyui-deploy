@@ -1,18 +1,15 @@
 "use client";
 
-import { plainInputsToZod } from "../lib/workflowVersionInputsToZod";
-import { publicRunStore } from "./VersionSelect";
-import { callServerPromise } from "./callServerPromise";
-import { LoadingIcon } from "@/components/LoadingIcon";
-import AutoForm, { AutoFormSubmit } from "@/components/ui/auto-form";
-import { Button } from "@/components/ui/button";
-import type { getInputsFromWorkflow } from "@/lib/getInputsFromWorkflow";
-import { createRun } from "@/server/createRun";
+import { useState, useMemo } from "react";
 import { useAuth, useClerk } from "@clerk/nextjs";
-import { Play } from "lucide-react";
-import { useMemo, useState } from "react";
+import { createRun } from "@/server/createRun";
+import { callServerPromise } from "@/lib/callServerPromise";
+import { publicRunStore } from "@/store/publicRunStore";
+import { getInputsFromWorkflow } from "@/lib/getInputsFromWorkflow";
+import { plainInputsToZod } from "@/lib/workflowVersionInputsToZod";
+import { Form } from "./Form";
+import { z } from "zod";
 
-// For share page
 export function RunWorkflowInline({
   inputs,
   workflow_version_id,
@@ -29,7 +26,7 @@ export function RunWorkflowInline({
   const clerk = useClerk();
 
   const schema = useMemo(() => {
-    return plainInputsToZod(inputs);
+    return plainInputsToZod(inputs) || z.object({});
   }, [inputs]);
 
   const {
@@ -77,32 +74,14 @@ export function RunWorkflowInline({
   };
 
   return (
-    <>
-      {schema && (
-        <AutoForm
-          formSchema={schema}
-          values={values}
-          onValuesChange={setValues}
-          onSubmit={runWorkflow}
-          className="px-1"
-        >
-          <div className="flex justify-end">
-            <AutoFormSubmit disabled={isLoading || loading}>
-              Run
-              {isLoading || loading ? <LoadingIcon /> : <Play size={14} />}
-            </AutoFormSubmit>
-          </div>
-        </AutoForm>
-      )}
-      {!schema && (
-        <Button
-          className="gap-2"
-          disabled={isLoading || loading}
-          onClick={runWorkflow}
-        >
-          Confirm {isLoading || loading ? <LoadingIcon /> : <Play size={14} />}
-        </Button>
-      )}
-    </>
+    <Form
+      formSchema={schema}
+      values={values}
+      onValuesChange={(values) => setValues(values as Record<string, string>)}
+      onSubmit={runWorkflow}
+      className="px-1"
+    >
+      {/* Form content here */}
+    </Form>
   );
 }

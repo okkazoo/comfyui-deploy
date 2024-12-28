@@ -324,7 +324,7 @@ export function RunWorkflowButton({
           <AutoForm
             formSchema={schema}
             values={values}
-            onValuesChange={setValues}
+            onValuesChange={(values) => setValues(values as Record<string, string>)}
             onSubmit={runWorkflow}
             className="px-1"
           >
