@@ -13,7 +13,8 @@
     "migrate-local": "SSL=false LOCAL=true bun run migrate.mts",
     "db-up": "docker-compose up",
     "db-dev": "bun run db-up && bun run migrate-local",
-    "lint:fix": "bunx @biomejs/biome lint --apply ./src"
+    "lint:fix": "bunx @biomejs/biome lint --apply ./src",
+    "postbuild": "bun run migrate-production"
   },
   "dependencies": {
     "@algolia/autocomplete-core": "^1.13.0",
@@ -54,6 +55,7 @@
     "@types/swagger-ui-react": "^4.18.3",
     "@types/uuid": "^9.0.7",
     "acorn": "^8.11.2",
+    "caniuse-lite": "^1.0.30001690",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^0.2.0",
